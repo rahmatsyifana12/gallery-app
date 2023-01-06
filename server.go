@@ -3,7 +3,7 @@ package main
 import (
 	"gallery-app/configs"
 	"gallery-app/models"
-	"net/http"
+	"gallery-app/routes"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -22,9 +22,8 @@ func main() {
 	db.AutoMigrate(&models.User{})
 
 	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
+
+	routes.InitRoutes(e)
 
 	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
