@@ -4,7 +4,7 @@ This is a project created to fulfill the final bootcamp assignment at BNCC Acade
 
 ## Getting Started
 
-1. Make sure you have installed [Go](https://go.dev/dl/) and [MySQL](https://www.mysql.com/downloads/).
+1. Make sure you have installed [Go](https://go.dev/dl/) v1.18.4 or higher and [MySQL](https://www.mysql.com/downloads/) v8.0 or higher.
 2. Clone this repository
    ```
    https://github.com/rahmatsyifana12/gallery-app.git
