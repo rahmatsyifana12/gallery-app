@@ -1,4 +1,4 @@
-## About the Projct
+## About the Project
 
 This is a project created to fulfill the final bootcamp assignment at BNCC Academy 2022.
 
