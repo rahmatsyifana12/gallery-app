@@ -11,3 +11,10 @@ type User struct {
 	CreatedAt 	time.Time `gorm:"not null"`
   	UpdatedAt 	time.Time `gorm:"not null"`
 }
+
+type CreateUserDTO struct {
+	Username 	string `validate:"required,min=4,max=32,alphanum"`
+	Password 	string `validate:"required,min=4,max=32,alphanum"`
+	Name 		string `validate:"required,min=4,max=32,alpha"`
+	Phone 		string `validate:"max=13,numeric"`
+}
