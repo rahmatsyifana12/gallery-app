@@ -16,5 +16,5 @@ type CreateUserDTO struct {
 	Username 	string `validate:"required,min=4,max=32,alphanum"`
 	Password 	string `validate:"required,min=4,max=32,alphanum"`
 	Name 		string `validate:"required,min=4,max=32,alpha"`
-	Phone 		string `validate:"max=13,numeric"`
+	Phone 		string `validate:"omitempty,max=13,numeric"`
 }
