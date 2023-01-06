@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"gallery-app/models"
+	"gallery-app/entities"
 	"net/http"
 	"time"
 
@@ -12,7 +12,7 @@ import (
 )
 
 func Register(c echo.Context) error {
-	u := new(models.CreateUserDTO)
+	u := new(entities.CreateUserDTO)
 	if err := c.Bind(u); err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
@@ -28,7 +28,7 @@ func Register(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	new_u := models.User{
+	new_u := entities.User{
 		Username: u.Username,
 		Password: hashed_password,
 		Name: u.Name,

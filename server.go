@@ -2,7 +2,7 @@ package main
 
 import (
 	"gallery-app/configs"
-	"gallery-app/models"
+	"gallery-app/entities"
 	"gallery-app/routes"
 	"os"
 
@@ -19,7 +19,7 @@ func main() {
 	db := configs.DBConfig()
 
 	// migrates all schema
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&entities.User{})
 
 	e := echo.New()
 
