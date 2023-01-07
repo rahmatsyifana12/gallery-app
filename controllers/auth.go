@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"gallery-app/entities"
+	"gallery-app/models"
 	"net/http"
 	"time"
 
@@ -12,35 +12,35 @@ import (
 )
 
 func Register(c echo.Context) error {
-	u := new(entities.CreateUserDTO)
-	if err := c.Bind(u); err != nil {
-		return c.String(http.StatusBadRequest, "bad request")
+	user := new(models.CreateUserDTO)
+	if err := c.Bind(user); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	validate := validator.New()
-	err := validate.Struct(u)
+	err := validate.Struct(user)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	hashed_password, err := hashPassword(u.Password)
+	hashed_password, err := hashPassword(user.Password)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	new_u := entities.User{
-		Username: u.Username,
+	new_user := models.User{
+		Username: user.Username,
 		Password: hashed_password,
-		Name: u.Name,
-		Phone: u.Phone,
+		Name: user.Name,
+		Phone: user.Phone,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
 	db := configs.DBConfig()
-	db.Select("Username", "Password", "Name", "Phone", "CreatedAt", "UpdatedAt").Create(&new_u)
+	db.Select("Username", "Password", "Name", "Phone", "CreatedAt", "UpdatedAt").Create(&new_user)
 
-	return c.JSON(http.StatusOK, new_u)
+	return c.JSON(http.StatusOK, new_user)
 }
 
 func hashPassword(password string) (string, error) {
