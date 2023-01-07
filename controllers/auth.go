@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"gallery-app/models"
 	"io/ioutil"
 	"net/http"
