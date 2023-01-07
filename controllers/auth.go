@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"time"
 
+	"gallery-app/configs"
+
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
-	"gallery-app/configs"
-	"github.com/go-playground/validator/v10"
 )
 
 func Register(c echo.Context) error {
@@ -17,12 +18,22 @@ func Register(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
+	// validate user input
 	validate := validator.New()
 	err := validate.Struct(user)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
+	db := configs.DBConfig()
+
+	// check if username already exists
+	var user_exists models.User
+	if err := db.First(&user_exists, "username = ?", user.Username).Error; err == nil {
+		return c.String(http.StatusBadRequest, "Username already exists")
+	}
+
+	// hash raw password into hashed password
 	hashed_password, err := hashPassword(user.Password)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -37,7 +48,6 @@ func Register(c echo.Context) error {
 		UpdatedAt: time.Now(),
 	}
 
-	db := configs.DBConfig()
 	db.Select("Username", "Password", "Name", "Phone", "CreatedAt", "UpdatedAt").Create(&new_user)
 
 	return c.JSON(http.StatusOK, new_user)

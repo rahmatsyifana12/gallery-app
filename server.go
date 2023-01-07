@@ -22,7 +22,6 @@ func main() {
 	db.AutoMigrate(&models.User{})
 
 	e := echo.New()
-
 	routes.InitRoutes(e)
 
 	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
