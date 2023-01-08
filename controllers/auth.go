@@ -1,13 +1,16 @@
 package controllers
 
 import (
+	"encoding/json"
 	"gallery-app/models"
+	"io/ioutil"
 	"net/http"
 	"time"
 
 	"gallery-app/configs"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -60,4 +63,53 @@ func hashPassword(password string) (string, error) {
 	}
 
 	return string(bytes), nil
+}
+
+func Login(c echo.Context) error {
+	var user models.User
+	payload, _ := ioutil.ReadAll(c.Request().Body)
+	err := json.Unmarshal(payload, &user)
+
+	if err != nil {
+		return err
+	}
+
+	// Check if username exists
+	var results models.User
+	db := configs.DBConfig()
+	if err := db.First(&results, "username = ?", user.Username).Error; err != nil {
+		return c.String(http.StatusBadRequest, "Your credentials doens't match our records")
+	}
+
+	// Check if password is correct
+	if err := bcrypt.CompareHashAndPassword([]byte(results.Password), []byte(user.Password)); err != nil {
+		return c.String(http.StatusBadRequest, "Your credentials doens't match our records")
+	}
+
+	//Generate JWT
+	token, err := GenerateJWT(results.ID, results.Username, "secret")
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	
+	var tokenJSON = map[string]string{"token": token}
+
+	resp := c.JSON(http.StatusOK, tokenJSON)
+	return resp
+}
+
+func GenerateJWT(id uint64, username string, key string) (string, error) {
+	//Generate JWT for Auth
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id": id,
+		"username": username,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte(key))
+	if err != nil {
+		return "tokenError", err
+	}
+
+	return tokenString, nil
 }
