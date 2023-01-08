@@ -97,18 +97,12 @@ func Login(c echo.Context) error {
 	})
 }
 
-type jwtCustomClaims struct {
-	ID   uint64 `gorm:"primaryKey;autoIncrement"`
-	Username  string `gorm:"size:255;not null"`
-	jwt.RegisteredClaims
-}
-
 func GenerateJWT(id uint64, username string, key string) (string, error) {
 	// Set custom claims with id and username
-	claims := &jwtCustomClaims{
-		id,
-		username,
-		jwt.RegisteredClaims{
+	claims := models.JWTCustomClaims{
+		ID: id,
+		Username: username,
+		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
 	}
