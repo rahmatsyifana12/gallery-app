@@ -91,8 +91,10 @@ func Login(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
+	
+	var tokenJSON = map[string]string{"token": token}
 
-	resp := c.JSON(http.StatusOK, token)
+	resp := c.JSON(http.StatusOK, tokenJSON)
 	return resp
 }
 
