@@ -19,7 +19,7 @@ func main() {
 	db := configs.DBConfig()
 
 	// migrates all schema
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.User{}, &models.Memory{}, &models.Tags{}, &models.Images{})
 
 	e := echo.New()
 	routes.InitRoutes(e)
