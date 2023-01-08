@@ -13,5 +13,4 @@ func InitRoutes(e *echo.Echo) {
 	})
 
 	e.POST("/register", controllers.Register)
-	e.POST("/memories/create", controllers.CreateMemory)
 }
