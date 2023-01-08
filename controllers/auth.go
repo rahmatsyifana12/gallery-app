@@ -91,25 +91,37 @@ func Login(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	
-	var tokenJSON = map[string]string{"token": token}
 
-	resp := c.JSON(http.StatusOK, tokenJSON)
-	return resp
+	return c.JSON(http.StatusOK, echo.Map{
+		"token": token,
+	})
+}
+
+type jwtCustomClaims struct {
+	ID   uint64 `gorm:"primaryKey;autoIncrement"`
+	Username  string `gorm:"size:255;not null"`
+	jwt.RegisteredClaims
 }
 
 func GenerateJWT(id uint64, username string, key string) (string, error) {
-	//Generate JWT for Auth
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id": id,
-		"username": username,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-	})
-
-	tokenString, err := token.SignedString([]byte(key))
-	if err != nil {
-		return "tokenError", err
+	// Set custom claims with id and username
+	claims := &jwtCustomClaims{
+		id,
+		username,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
+		},
 	}
 
-	return tokenString, nil
+	// Create token with claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Generate encoded token and send it as response.
+	t, err := token.SignedString([]byte(key))
+	if err != nil {
+		return "", err
+	}
+	
+	// Return token
+	return t, err
 }
