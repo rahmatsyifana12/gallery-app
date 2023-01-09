@@ -25,6 +25,7 @@ func InitRoutes(e *echo.Echo) {
 	e.POST("/register", controllers.Register)
 	e.POST("/login", controllers.Login)
 
+	// use "g" instead of "e" if the endpoint needs an authentication middleware
 	g := e.Group("", echojwt.WithConfig(echojwt.Config{
 		SigningKey: []byte(jwt_access_secret),
 	}))

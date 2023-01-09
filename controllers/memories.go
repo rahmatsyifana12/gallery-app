@@ -23,7 +23,6 @@ func CreateMemory(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	
 
 	new_memory := models.Memory{
 		Description: memory.Description,
