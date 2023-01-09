@@ -3,23 +3,19 @@ package middlewares
 import (
 	"errors"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
 func GetToken(c echo.Context) (*jwt.Token, error) {
-	token, ok := c.Get("user").(*jwt.Token)
-	if !ok {
-		return nil, errors.New("Unauthorized")
-	}
-
+	token := c.Get("user").(*jwt.Token)
 	return token, nil
 }
 
 func GetClaims(token *jwt.Token) (jwt.Claims, error) {
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil, errors.New("Unauthorized")
+	claims := token.Claims.(jwt.MapClaims)
+	if claims == nil {
+		return nil, errors.New("unauthorized error")
 	}
 
 	return claims, nil
