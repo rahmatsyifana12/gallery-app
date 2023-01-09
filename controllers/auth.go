@@ -5,12 +5,14 @@ import (
 	"gallery-app/models"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	"gallery-app/configs"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -81,13 +83,19 @@ func Login(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Your credentials doens't match our records")
 	}
 
+	err = godotenv.Load()
+	if err != nil {
+		panic("failed to load .env file")
+	}
+
 	// Check if password is correct
 	if err := bcrypt.CompareHashAndPassword([]byte(results.Password), []byte(user.Password)); err != nil {
 		return c.String(http.StatusBadRequest, "Your credentials doens't match our records")
 	}
 
-	//Generate JWT
-	token, err := GenerateJWT(results.ID, results.Username, "secret")
+	// Generate JWT
+	jwt_access_secret := os.Getenv("JWT_ACCESS_SECRET")
+	token, err := GenerateJWT(results.ID, results.Username, jwt_access_secret)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}

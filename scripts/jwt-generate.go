@@ -1,7 +1,6 @@
 package scripts
 
 import (
-	// "bytes"
 	"crypto/rand"
 	"fmt"
 	"io/ioutil"
