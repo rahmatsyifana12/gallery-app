@@ -9,6 +9,9 @@ import (
 
 func GetToken(c echo.Context) (*jwt.Token, error) {
 	token := c.Get("user").(*jwt.Token)
+	if token == nil {
+		return nil, errors.New("unauthorized error")
+	}
 	return token, nil
 }
 

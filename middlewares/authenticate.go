@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -15,7 +14,6 @@ func Authenticate() (echo.MiddlewareFunc) {
 		panic("failed to load .env file")
 	}
 	jwt_access_secret := os.Getenv("JWT_ACCESS_SECRET")
-	fmt.Println(jwt_access_secret)
 
 	return echojwt.WithConfig(echojwt.Config{
 		SigningKey: []byte(jwt_access_secret),
