@@ -19,7 +19,9 @@ func main() {
 
 	jwt_access_secret := os.Getenv("JWT_ACCESS_SECRET")
 	if jwt_access_secret == "" {
-		scripts.GenerateSecret();
+		if err := scripts.GenerateSecret(); err != nil {
+			panic(err.Error())
+		}
 	}
 
 	db := configs.DBConfig()
