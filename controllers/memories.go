@@ -1,41 +1,45 @@
 package controllers
 
 import (
-	"gallery-app/models"
-	"net/http"
-	"time"
+	"gallery-app/middlewares"
+	// "gallery-app/models"
+	// "net/http"
+	// "time"
 
-	"gallery-app/configs"
-	
-	"github.com/go-playground/validator/v10"
+	// "gallery-app/configs"
+
+	// "github.com/go-playground/validator/v10"
 	// "github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
 func CreateMemory(c echo.Context) error {
-	memory := new(models.CreateMemoryDTO)
-	if err := c.Bind(memory); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+	middlewares.Authenticate(c);
+	
+	return nil
+	// memory := new(models.CreateMemoryDTO)
+	// if err := c.Bind(memory); err != nil {
+	// 	return c.JSON(http.StatusBadRequest, err.Error())
+	// }
 
-	// validate user input
-	validate := validator.New()
-	err := validate.Struct(memory)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+	// // validate user input
+	// validate := validator.New()
+	// err := validate.Struct(memory)
+	// if err != nil {
+	// 	return c.JSON(http.StatusBadRequest, err.Error())
+	// }
 	
 
-	new_memory := models.Memory{
-		Description: memory.Description,
-		UserID: 1,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
+	// new_memory := models.Memory{
+	// 	Description: memory.Description,
+	// 	UserID: 1,
+	// 	CreatedAt: time.Now(),
+	// 	UpdatedAt: time.Now(),
+	// }
 	
-	db := configs.DBConfig()
-	db.Select("Description", "UserID", "CreatedAt", "UpdatedAt").Create(&new_memory)
+	// db := configs.DBConfig()
+	// db.Select("Description", "UserID", "CreatedAt", "UpdatedAt").Create(&new_memory)
 
-	return c.JSON(http.StatusOK, new_memory)
+	// return c.JSON(http.StatusOK, new_memory)
 }
 
