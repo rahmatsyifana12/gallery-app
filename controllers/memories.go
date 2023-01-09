@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"gallery-app/configs"
+	"gallery-app/middlewares"
 	"gallery-app/models"
 	"net/http"
 	"time"
+
 	"github.com/go-playground/validator/v10"
 
 	"github.com/labstack/echo/v4"
@@ -23,9 +25,17 @@ func CreateMemory(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	claims, err := middlewares.GetClaims(c)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
+	}
+
 	new_memory := models.Memory{
 		Description: memory.Description,
-		UserID: 1,
+		UserID: claims.ID,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}

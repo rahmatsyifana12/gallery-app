@@ -13,7 +13,7 @@ type Memory struct {
 }
 
 type CreateMemoryDTO struct {
-	Description string `validate:"required,min=4,alphanum"`
+	Description string `validate:"required,min=4"`
 }
 
 type Tags struct {
