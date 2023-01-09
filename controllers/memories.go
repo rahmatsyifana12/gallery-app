@@ -6,9 +6,8 @@ import (
 	"time"
 
 	"gallery-app/configs"
-	
+
 	"github.com/go-playground/validator/v10"
-	// "github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
@@ -24,7 +23,6 @@ func CreateMemory(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	
 
 	new_memory := models.Memory{
 		Description: memory.Description,
