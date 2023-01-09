@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type Images struct {
+type Image struct {
 	ID 			uint64 `gorm:"primaryKey;autoIncrement"`
 	Image 		string `gorm:"size:1023;not null"`
 	MemoryID 	uint64 `gorm:"not null"`

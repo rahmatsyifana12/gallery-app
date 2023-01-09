@@ -7,7 +7,7 @@ type Memory struct {
 	Description string `gorm:"size:1023;not null"`
 	UserID 		uint64 `gorm:"not null"`
 	Tags 		[]Tag `gorm:"many2many:memory_tags;"`
-	Images 		[]Images `gorm:"foreignKey:MemoryID"`
+	Images 		[]Image `gorm:"foreignKey:MemoryID"`
 	CreatedAt 	time.Time `gorm:"not null"`
 	UpdatedAt 	time.Time `gorm:"not null"`
 }

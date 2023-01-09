@@ -18,4 +18,5 @@ func InitRoutes(e *echo.Echo) {
 	e.PATCH("/logout", controllers.Logout, middlewares.Authenticate())
 
 	e.POST("/memories", controllers.CreateMemory, middlewares.Authenticate())
+	e.GET("/memories", controllers.GetAllMemories)
 }

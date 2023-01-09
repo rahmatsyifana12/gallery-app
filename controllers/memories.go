@@ -36,3 +36,11 @@ func CreateMemory(c echo.Context) error {
 	return c.JSON(http.StatusOK, new_memory)
 }
 
+func GetAllMemories(c echo.Context) error {
+	db := configs.DBConfig()
+
+	var memories []models.Memory
+	db.Table("memories").Select("memories.id, memories.description, ").Joins("left join images on images.memory_id = memories.id").Scan(&memories)
+
+	return c.JSON(http.StatusOK, memories)
+}
