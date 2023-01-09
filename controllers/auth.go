@@ -20,14 +20,20 @@ import (
 func Register(c echo.Context) error {
 	user := new(models.CreateUserDTO)
 	if err := c.Bind(user); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
 	}
 
 	// validate user input
 	validate := validator.New()
 	err := validate.Struct(user)
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
 	}
 
 	db := configs.DBConfig()
@@ -35,13 +41,19 @@ func Register(c echo.Context) error {
 	// check if username already exists
 	var user_exists models.User
 	if err := db.First(&user_exists, "username = ?", user.Username).Error; err == nil {
-		return c.String(http.StatusBadRequest, "Username already exists")
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": "Username already exists",
+		})
 	}
 
 	// hash raw password into hashed password
 	hashed_password, err := hashPassword(user.Password)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
 	}
 
 	new_user := models.User{
@@ -55,7 +67,10 @@ func Register(c echo.Context) error {
 
 	db.Select("Username", "Password", "Name", "Phone", "CreatedAt", "UpdatedAt").Create(&new_user)
 
-	return c.JSON(http.StatusOK, new_user)
+	return c.JSON(http.StatusOK, echo.Map{
+		"status": "success",
+		"message": "Succesfully created a new account",
+	})
 }
 
 func hashPassword(password string) (string, error) {
@@ -73,35 +88,52 @@ func Login(c echo.Context) error {
 	err := json.Unmarshal(payload, &user)
 
 	if err != nil {
-		return err
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
 	}
 
 	// Check if username exists
 	var results models.User
 	db := configs.DBConfig()
 	if err := db.First(&results, "username = ?", user.Username).Error; err != nil {
-		return c.String(http.StatusBadRequest, "Your credentials doens't match our records")
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": "Your credentials doens't match our records",
+		})
 	}
 
 	err = godotenv.Load()
 	if err != nil {
-		panic("failed to load .env file")
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"status": "fail",
+			"message": "Internal server error",
+		})
 	}
 
 	// Check if password is correct
 	if err := bcrypt.CompareHashAndPassword([]byte(results.Password), []byte(user.Password)); err != nil {
-		return c.String(http.StatusBadRequest, "Your credentials doens't match our records")
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": "Your credentials doens't match our records",
+		})
 	}
 
 	// Generate JWT
 	jwt_access_secret := os.Getenv("JWT_ACCESS_SECRET")
 	token, err := GenerateJWT(results.ID, results.Username, jwt_access_secret)
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"accessToken": token,
+		"status": "suscess",
+		"message": "Successfully logged in",
+		"token": token,
 	})
 }
 
@@ -125,5 +157,5 @@ func GenerateJWT(id uint64, username string, key string) (string, error) {
 	}
 	
 	// Return token
-	return t, err
+	return t, nil
 }
