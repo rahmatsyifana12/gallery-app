@@ -8,6 +8,7 @@ type User struct {
 	Password 	string `gorm:"size:255;not null"`
 	Name 		string `gorm:"size:255;not null"`
 	Phone 		string `gorm:"size:63"`
+	Token		string `gorm:"size:255"`
 	Memory 		[]Memory `gorm:"foreignKey:UserID"`
 	CreatedAt 	time.Time `gorm:"not null"`
 	UpdatedAt 	time.Time `gorm:"not null"`

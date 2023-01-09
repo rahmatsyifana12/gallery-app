@@ -15,6 +15,7 @@ func InitRoutes(e *echo.Echo) {
 
 	e.POST("/register", controllers.Register)
 	e.POST("/login", controllers.Login)
+	e.PATCH("/logout", controllers.Logout, middlewares.Authenticate())
 
 	e.POST("/memories", controllers.CreateMemory, middlewares.Authenticate())
 }
