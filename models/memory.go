@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Memory struct {
 	ID 			uint64 `gorm:"primaryKey;autoIncrement"`
@@ -14,4 +18,13 @@ type Memory struct {
 
 type CreateMemoryDTO struct {
 	Description string `validate:"required,min=4,alphanum"`
+}
+
+func GetAllMemories(db *gorm.DB) ([]Memory, error) {
+	var memories []Memory
+	if res := db.Model(&Memory{}).Preload("Images").Preload("Tags").Find(&memories); res.Error != nil {
+		return nil, res.Error
+	}
+
+	return memories, nil
 }
