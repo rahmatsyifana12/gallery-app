@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"gallery-app/configs"
 	"gallery-app/middlewares"
 	"gallery-app/models"
@@ -236,12 +237,19 @@ func AddTagsToMemory (c echo.Context) error {
 	}
 	
 	db.First(&tags_exists, "name = ?", tags.Name)
+
+	fmt.Println(tags_exists)
 	
 	new_memory_tags := models.MemoryTag {
-		TagsID: tags_exists.ID,
+		TagID: tags_exists.ID,
 		MemoryID: tags.MemoryID,
 	}
-	db.Select("TagsID", "MemoryID").Create(&new_memory_tags)
+	if res := db.Select("TagID", "MemoryID").Create(&new_memory_tags); res.Error != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"status": "fail",
+			"message": res.Error,
+		})
+	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"status": "success",

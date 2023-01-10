@@ -22,7 +22,7 @@ type CreateMemoryDTO struct {
 
 func GetAllMemories(db *gorm.DB) ([]Memory, error) {
 	var memories []Memory
-	if res := db.Model(&Memory{}).Preload("Images").Find(&memories); res.Error != nil {
+	if res := db.Model(&Memory{}).Preload("Images").Preload("Tags").Find(&memories); res.Error != nil {
 		return nil, res.Error
 	}
 
