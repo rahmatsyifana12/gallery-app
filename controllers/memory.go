@@ -73,7 +73,7 @@ func AddImagesToMemory(c echo.Context) error {// Source
 	}
 	// Get the files from the request
 	files := form.File["Image"]
-
+	isFile := false
 	for _, file := range files {
 		// Validate file extension
 		if !(validateFileExt(strings.ToLower(file.Filename))) {
@@ -84,7 +84,7 @@ func AddImagesToMemory(c echo.Context) error {// Source
 		}
 
 		// Validate file size max 5MB
-		if file.Size > int64(5000000) {
+		if file.Size > int64(5000000) && file.Size < int64(0) {
 			return c.JSON(http.StatusBadRequest, echo.Map{
 				"status": "fail",
 				"message": "Images can't be more than 5MB",
@@ -94,7 +94,7 @@ func AddImagesToMemory(c echo.Context) error {// Source
 	for _, file := range files {
 		// Create fileName with format
 		var t = time.Now()
-		var fileName = t.Format("20060102150405_")+RandStringBytes(16)+filepath.Ext(file.Filename)
+		var fileName = t.Format("20060102150405_")+RandStringBytes(16)+filepath.Ext(strings.ToLower(file.Filename))
 
 		db := configs.DBConfig()
 		MemoryID := c.FormValue("MemoryID")
@@ -146,12 +146,20 @@ func AddImagesToMemory(c echo.Context) error {// Source
 				"status": "fail",
 				"message": err.Error(),
 			})
+		} else {
+			isFile = true
 		}
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"status": "success",
-		"message": "File(s) successfully uploaded",
+	if (isFile) {
+		return c.JSON(http.StatusOK, echo.Map{
+			"status": "success",
+			"message": "Images successfully uploaded",
+		})
+	}
+	return c.JSON(http.StatusBadRequest, echo.Map{
+		"status": "fail",
+		"message": "bad request",
 	})
 }
 
@@ -184,8 +192,59 @@ func GetAllMemories(c echo.Context) error {
 			"message": err.Error(),
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"status": "sucess",
 		"memories": memories,
+	})
+}
+
+func AddTagsToMemory (c echo.Context) error {
+	tags := new(models.CreateTagsDTO)
+	if err := c.Bind(tags); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
+	}
+
+	// validate user input
+	validate := validator.New()
+	err := validate.Struct(tags)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
+	}
+	db := configs.DBConfig()
+	// check if tags already exist
+	var tags_exists models.Tags
+	if err := db.First(&tags_exists, "name = ?", tags.Name).Error; err != nil {
+		// if tags don't exist exists, create tags
+		new_tags := models.Tags {
+			Name: tags.Name,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		db.Select("Name", "Created_at", "Updated_at").Create(&new_tags)
+	} else {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": "Tags already exists",
+		})
+	}
+	
+	db.First(&tags_exists, "name = ?", tags.Name)
+	
+	new_memory_tags := models.MemoryTags {
+		TagsID: tags_exists.ID,
+		MemoryID: tags.MemoryID,
+	}
+	db.Select("TagsID", "MemoryID").Create(&new_memory_tags)
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"status": "success",
+		"message": "Tags successfully added",
 	})
 }

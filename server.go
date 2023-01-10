@@ -27,7 +27,12 @@ func main() {
 	db := configs.DBConfig()
 
 	// migrates all schema
+<<<<<<< HEAD
 	db.AutoMigrate(&models.User{}, &models.Memory{}, &models.Tag{}, &models.Image{})
+=======
+	db.Migrator().DropTable(&models.Memory{}, &models.Tags{}, &models.Images{})
+	db.AutoMigrate(&models.User{}, &models.Memory{}, &models.Tags{}, &models.Images{})
+>>>>>>> e997337314f51bae3fed95434688fecbbe2c9839
 
 	e := echo.New()
 	routes.InitRoutes(e)
