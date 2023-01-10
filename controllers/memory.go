@@ -49,6 +49,6 @@ func GetAllMemories(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"status": "sucess",
-		"data": memories,
+		"memories": memories,
 	})
 }
