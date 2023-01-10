@@ -106,7 +106,7 @@ func AddImagesToMemory(c echo.Context) error {// Source
 			})
 		}
 
-		new_image := models.Images {
+		new_image := models.Image {
 			Image: fileName,
 			MemoryID: typeCastedMemoryID,
 			CreatedAt: time.Now(),
@@ -194,13 +194,13 @@ func GetAllMemories(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"status": "sucess",
+		"status": "success",
 		"memories": memories,
 	})
 }
 
 func AddTagsToMemory (c echo.Context) error {
-	tags := new(models.CreateTagsDTO)
+	tags := new(models.CreateTagDTO)
 	if err := c.Bind(tags); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"status": "fail",
@@ -219,10 +219,10 @@ func AddTagsToMemory (c echo.Context) error {
 	}
 	db := configs.DBConfig()
 	// check if tags already exist
-	var tags_exists models.Tags
+	var tags_exists models.Tag
 	if err := db.First(&tags_exists, "name = ?", tags.Name).Error; err != nil {
 		// if tags don't exist exists, create tags
-		new_tags := models.Tags {
+		new_tags := models.Tag {
 			Name: tags.Name,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
@@ -237,7 +237,7 @@ func AddTagsToMemory (c echo.Context) error {
 	
 	db.First(&tags_exists, "name = ?", tags.Name)
 	
-	new_memory_tags := models.MemoryTags {
+	new_memory_tags := models.MemoryTag {
 		TagsID: tags_exists.ID,
 		MemoryID: tags.MemoryID,
 	}
