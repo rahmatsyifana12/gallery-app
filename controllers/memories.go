@@ -36,3 +36,19 @@ func CreateMemory(c echo.Context) error {
 	return c.JSON(http.StatusOK, new_memory)
 }
 
+func GetAllMemories(c echo.Context) error {
+	db := configs.DBConfig()
+
+	memories, err := models.GetAllMemories(db)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"status": "sucess",
+		"data": memories,
+	})
+}
