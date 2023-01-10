@@ -25,12 +25,12 @@ type Tags struct {
 }
 
 type CreateTagsDTO struct {
-	Name 		string `validate:"required,min=1,alphanum"`
+	Name 		string `validate:"required,min=1,max=24,alphanum"`
 }
 
 type Images struct {
 	ID 			uint64 `gorm:"primaryKey;autoIncrement"`
-	Image 		string `gorm:"not null;size:1023"`
+	Image 		string `gorm:"file;not null;size:1023"`
 	MemoryID 	uint64 `gorm:"not null"`
 	CreatedAt 	time.Time `gorm:"not null"`
 	UpdatedAt 	time.Time `gorm:"not null"`

@@ -73,7 +73,7 @@ func AddImagesToMemory(c echo.Context) error {// Source
 	}
 	// Get the files from the request
 	files := form.File["Image"]
-
+	isFile := false
 	for _, file := range files {
 		// Validate file extension
 		if !(validateFileExt(strings.ToLower(file.Filename))) {
@@ -84,7 +84,7 @@ func AddImagesToMemory(c echo.Context) error {// Source
 		}
 
 		// Validate file size max 5MB
-		if file.Size > int64(5000000) {
+		if file.Size > int64(5000000) && file.Size < int64(0) {
 			return c.JSON(http.StatusBadRequest, echo.Map{
 				"status": "fail",
 				"message": "Images can't be more than 5MB",
@@ -146,12 +146,20 @@ func AddImagesToMemory(c echo.Context) error {// Source
 				"status": "fail",
 				"message": err.Error(),
 			})
+		} else {
+			isFile = true
 		}
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"status": "success",
-		"message": "File(s) successfully uploaded",
+	if (isFile) {
+		return c.JSON(http.StatusOK, echo.Map{
+			"status": "success",
+			"message": "Images successfully uploaded",
+		})
+	}
+	return c.JSON(http.StatusBadRequest, echo.Map{
+		"status": "fail",
+		"message": "bad request",
 	})
 }
 
@@ -172,4 +180,29 @@ func RandStringBytes(n int) string {
         b[i] = letterBytes[rand.Intn(len(letterBytes))]
     }
     return string(b)
+}
+
+func AddTagsToMemory (c echo.Context) error {
+	tags := new(models.CreateTagsDTO)
+	if err := c.Bind(tags); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
+	}
+
+	// validate user input
+	validate := validator.New()
+	err := validate.Struct(tags)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"status": "success",
+		"message": "Tags successfully added",
+	})
 }
