@@ -7,13 +7,13 @@ import (
 )
 
 type Memory struct {
-	ID 			uint64 `gorm:"primaryKey;autoIncrement"`
-	Description string `gorm:"size:1023;not null"`
-	UserID 		uint64 `gorm:"not null"`
-	Tags 		[]*Tag `gorm:"many2many:memory_tags;"`
-	Images 		[]Image `gorm:"foreignKey:MemoryID"`
-	CreatedAt 	time.Time `gorm:"not null"`
-	UpdatedAt 	time.Time `gorm:"not null"`
+	ID          uint64    `gorm:"primaryKey;autoIncrement"`
+	Description string    `gorm:"size:1023;not null"`
+	UserID      uint64    `gorm:"not null"`
+	Tags        []*Tag    `gorm:"many2many:memory_tags;"`
+	Images      []Image   `gorm:"foreignKey:MemoryID"`
+	CreatedAt   time.Time `gorm:"not null"`
+	UpdatedAt   time.Time `gorm:"not null"`
 }
 
 type CreateMemoryDTO struct {
@@ -27,4 +27,13 @@ func GetAllMemories(db *gorm.DB) ([]Memory, error) {
 	}
 
 	return memories, nil
+}
+
+func GetMemoryByID(db *gorm.DB, ID uint64) (Memory, error) {
+	var memory Memory
+	if res := db.Model(&Memory{}).Preload("Images").Preload("Tags").First(&memory, ID); res.Error != nil {
+		return memory, res.Error
+	}
+
+	return memory, nil
 }

@@ -20,5 +20,6 @@ func InitRoutes(e *echo.Echo) {
 	e.POST("/memories", controllers.CreateMemory, middlewares.Authenticate())
 	e.POST("/memories/images", controllers.AddImagesToMemory, middlewares.Authenticate())
 	e.GET("/memories", controllers.GetAllMemories)
+	e.GET("/memories/detail/:id", controllers.GetMemoryByID)
 	e.POST("/memories/tags", controllers.AddTagsToMemory, middlewares.Authenticate())
 }
