@@ -256,3 +256,45 @@ func AddTagsToMemory (c echo.Context) error {
 		"message": "Tags successfully added",
 	})
 }
+
+func UpdateMemory (c echo.Context) error {
+	memory := new(models.CreateMemoryDTO)
+	if err := c.Bind(memory); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
+	}
+
+	// validate user input
+	validate := validator.New()
+	err := validate.Struct(memory)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": err.Error(),
+		})
+	}
+
+	MemoryID, _ := strconv.Atoi(c.Param("id"))
+	db := configs.DBConfig()
+	// check if memory exists
+	var memory_exists models.Memory
+	if err := db.First(&memory_exists, "id = ?", MemoryID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": "Memory does not exist",
+		})
+	} else {
+		// update memory
+		db.Model(&memory_exists).Updates(models.Memory{
+			Description: memory.Description,
+			UpdatedAt: time.Now(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"status": "success",
+		"message": "Memory successfully updated",
+	})
+}
