@@ -55,29 +55,6 @@ func GetAllMemories(db *gorm.DB, sort []string) ([]Memory, error) {
 	return memories, nil
 }
 
-// func SortAllMemories(db *gorm.DB, sort []string) ([]Memory, error) {
-// 	var memories []Memory
-
-// 	if sort[0] == "uploaded" {
-// 		if sort[1] == "desc" {
-// 			if res := db.Model(&Memory{}).Preload("Images").Preload("Tags").Order("createdAt DESC").Find(&memories); res.Error != nil {
-// 				return nil, res.Error
-// 			}
-
-// 			return memories, nil
-// 		}
-
-// 		if res := db.Model(&Memory{}).Preload("Images").Preload("Tags").Order("createdAt ASC").Find(&memories); res.Error != nil {
-// 			return nil, res.Error
-// 		}
-
-// 		return memories, nil
-// 	} else if sort[0] == "edited" {
-
-// 	}
-// 	return nil, errors.New("Invalid parameter")
-// }
-
 func GetMemoryByID(db *gorm.DB, ID uint64) (Memory, error) {
 	var memory Memory
 	if res := db.Model(&Memory{}).Preload("Images").Preload("Tags").First(&memory, ID); res.Error != nil {
