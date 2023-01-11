@@ -24,7 +24,7 @@ func CreateMemory(c echo.Context) error {
 	memory := new(models.CreateMemoryDTO)
 	if err := c.Bind(memory); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"status": "fail",
+			"status":  "fail",
 			"message": err.Error(),
 		})
 	}
@@ -34,7 +34,7 @@ func CreateMemory(c echo.Context) error {
 	err := validate.Struct(memory)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"status": "fail",
+			"status":  "fail",
 			"message": err.Error(),
 		})
 	}
@@ -42,33 +42,33 @@ func CreateMemory(c echo.Context) error {
 	claims, err := middlewares.GetClaims(c)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"status": "fail",
+			"status":  "fail",
 			"message": err.Error(),
 		})
 	}
 
 	new_memory := models.Memory{
 		Description: memory.Description,
-		UserID: claims.ID,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		UserID:      claims.ID,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
-	
+
 	db := configs.DBConfig()
 	db.Select("Description", "UserID", "CreatedAt", "UpdatedAt").Create(&new_memory)
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"status": "success",
+		"status":  "success",
 		"message": "Succesfully created a memory",
 	})
 }
 
-func AddImagesToMemory(c echo.Context) error {// Source
+func AddImagesToMemory(c echo.Context) error { // Source
 	// Initialize the multipartform
 	form, err := c.MultipartForm()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"status": "fail",
+			"status":  "fail",
 			"message": err.Error(),
 		})
 	}
@@ -79,7 +79,7 @@ func AddImagesToMemory(c echo.Context) error {// Source
 		// Validate file extension
 		if !(validateFileExt(strings.ToLower(file.Filename))) {
 			return c.JSON(http.StatusBadRequest, echo.Map{
-				"status": "fail",
+				"status":  "fail",
 				"message": "File must be either a .jpg, .jpeg, .png",
 			})
 		}
@@ -87,7 +87,7 @@ func AddImagesToMemory(c echo.Context) error {// Source
 		// Validate file size max 5MB
 		if file.Size > int64(5000000) && file.Size < int64(0) {
 			return c.JSON(http.StatusBadRequest, echo.Map{
-				"status": "fail",
+				"status":  "fail",
 				"message": "Images can't be more than 5MB",
 			})
 		}
@@ -95,47 +95,47 @@ func AddImagesToMemory(c echo.Context) error {// Source
 	for _, file := range files {
 		// Create fileName with format
 		var t = time.Now()
-		var fileName = t.Format("20060102150405_")+RandStringBytes(16)+filepath.Ext(strings.ToLower(file.Filename))
+		var fileName = t.Format("20060102150405_") + RandStringBytes(16) + filepath.Ext(strings.ToLower(file.Filename))
 
 		db := configs.DBConfig()
 		MemoryID := c.FormValue("MemoryID")
 		typeCastedMemoryID, err := strconv.ParseUint(string(MemoryID), 10, 64)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, echo.Map{
-				"status": "fail",
+				"status":  "fail",
 				"message": err.Error(),
 			})
 		}
 
-		new_image := models.Image {
-			Image: fileName,
-			MemoryID: typeCastedMemoryID,
+		new_image := models.Image{
+			Image:     fileName,
+			MemoryID:  typeCastedMemoryID,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
 
 		if err := db.Select("Image", "MemoryID", "CreatedAt", "UpdatedAt").Create(&new_image).Error; err != nil {
 			return c.JSON(http.StatusBadRequest, echo.Map{
-				"status": "fail",
+				"status":  "fail",
 				"message": err.Error(),
 			})
-		} 
-		
+		}
+
 		// Get file source
 		src, err := file.Open()
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, echo.Map{
-				"status": "fail",
+				"status":  "fail",
 				"message": err.Error(),
 			})
 		}
 		defer src.Close()
-		
+
 		// Get file destination
 		dst, err := os.Create(filepath.Join("storage/images/", fileName))
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, echo.Map{
-				"status": "fail",
+				"status":  "fail",
 				"message": err.Error(),
 			})
 		}
@@ -144,7 +144,7 @@ func AddImagesToMemory(c echo.Context) error {// Source
 		// Copy files to storage/images
 		if _, err = io.Copy(dst, src); err != nil {
 			return c.JSON(http.StatusBadRequest, echo.Map{
-				"status": "fail",
+				"status":  "fail",
 				"message": err.Error(),
 			})
 		} else {
@@ -152,14 +152,14 @@ func AddImagesToMemory(c echo.Context) error {// Source
 		}
 	}
 
-	if (isFile) {
+	if isFile {
 		return c.JSON(http.StatusOK, echo.Map{
-			"status": "success",
+			"status":  "success",
 			"message": "Images successfully uploaded",
 		})
 	}
 	return c.JSON(http.StatusBadRequest, echo.Map{
-		"status": "fail",
+		"status":  "fail",
 		"message": "bad request",
 	})
 }
@@ -175,12 +175,12 @@ func validateFileExt(s string) bool {
 }
 
 func RandStringBytes(n int) string {
-	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"	
-    b := make([]byte, n)
-    for i := range b {
-        b[i] = letterBytes[rand.Intn(len(letterBytes))]
-    }
-    return string(b)
+	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }
 
 func GetAllMemories(c echo.Context) error {
@@ -189,22 +189,49 @@ func GetAllMemories(c echo.Context) error {
 	memories, err := models.GetAllMemories(db)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"status": "fail",
+			"status":  "fail",
 			"message": err.Error(),
 		})
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"status": "success",
+		"status":   "success",
 		"memories": memories,
 	})
 }
 
-func AddTagsToMemory (c echo.Context) error {
+func GetMemoryByID(c echo.Context) error {
+	db := configs.DBConfig()
+	// Convert ID parameter to uint64
+	id, errConv := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	if errConv != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status":  "fail",
+			"message": errConv.Error(),
+		})
+	}
+
+	memory, errMem := models.GetMemoryByID(db, id)
+
+	if errMem != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status":  "fail",
+			"message": errMem.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"status": "success",
+		"memory": memory,
+	})
+}
+
+func AddTagsToMemory(c echo.Context) error {
 	tags := new(models.CreateTagDTO)
 	if err := c.Bind(tags); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"status": "fail",
+			"status":  "fail",
 			"message": err.Error(),
 		})
 	}
@@ -214,7 +241,7 @@ func AddTagsToMemory (c echo.Context) error {
 	err := validate.Struct(tags)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"status": "fail",
+			"status":  "fail",
 			"message": err.Error(),
 		})
 	}
@@ -223,36 +250,36 @@ func AddTagsToMemory (c echo.Context) error {
 	var tags_exists models.Tag
 	if err := db.First(&tags_exists, "name = ?", tags.Name).Error; err != nil {
 		// if tags don't exist exists, create tags
-		new_tags := models.Tag {
-			Name: tags.Name,
+		new_tags := models.Tag{
+			Name:      tags.Name,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
 		db.Select("Name", "Created_at", "Updated_at").Create(&new_tags)
 	} else {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"status": "fail",
+			"status":  "fail",
 			"message": "Tags already exists",
 		})
 	}
-	
+
 	db.First(&tags_exists, "name = ?", tags.Name)
 
 	fmt.Println(tags_exists)
-	
-	new_memory_tags := models.MemoryTag {
-		TagID: tags_exists.ID,
+
+	new_memory_tags := models.MemoryTag{
+		TagID:    tags_exists.ID,
 		MemoryID: tags.MemoryID,
 	}
 	if res := db.Select("TagID", "MemoryID").Create(&new_memory_tags); res.Error != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"status": "fail",
+			"status":  "fail",
 			"message": res.Error,
 		})
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"status": "success",
+		"status":  "success",
 		"message": "Tags successfully added",
 	})
 }
