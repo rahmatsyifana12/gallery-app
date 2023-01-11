@@ -185,8 +185,9 @@ func RandStringBytes(n int) string {
 
 func GetAllMemories(c echo.Context) error {
 	db := configs.DBConfig()
+	sort := strings.Split(c.Param("sort"), ".")
 
-	memories, err := models.GetAllMemories(db)
+	memories, err := models.GetAllMemories(db, sort)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"status":  "fail",
