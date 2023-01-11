@@ -99,6 +99,31 @@ func UpdateMemoryById (c echo.Context) error {
 	})
 }
 
+func DeleteMemoryById(c echo.Context) error {
+	MemoryID, _ := strconv.Atoi(c.Param("id"))
+	db := configs.DBConfig()
+	// check if memory exists
+	var memory_exists models.Memory
+	if err := db.First(&memory_exists, "id = ?", MemoryID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"status": "fail",
+			"message": "Memory does not exist",
+		})
+	} else {
+		// Delete memory by deleting all images associated with it
+		db.Where(models.Image{}, "memory_id = ?", MemoryID).Delete(models.Image{})
+		// Get tags id associated with memory
+		db.Table("memory_tags").Select("tag_id").Where("memory_id = ?", MemoryID).Scan(&memory_exists.Tags)
+		// Delete memory
+		db.Delete(&memory_exists)
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"status": "success",
+		"message": "Memory successfully deleted",
+	})
+}
+
 func GetAllMemories(c echo.Context) error {
 	db := configs.DBConfig()
 
